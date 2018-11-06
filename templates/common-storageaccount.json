@@ -12,8 +12,16 @@
     },
     "ipRules": {
       "type": "array",
+      "defaultValue": [],
       "metadata": {
         "description": "IP rules to set for the Storage Account"
+      }
+    },
+    "virtualNetworkRules": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "VNET to which to attach Storage Account"
       }
     }
   },
@@ -32,12 +40,14 @@
       "name": "[variables('storageAccountName')]",
       "apiVersion": "2018-02-01",
       "location": "[resourceGroup().location]",
-      "tags": {},
+      "tags": {
+        "displayName": "Storage Account"
+      },
       "scale": null,
       "properties": {
         "networkAcls": {
           "bypass": "Logging, Metrics, AzureServices",
-          "virtualNetworkRules": [],
+          "virtualNetworkRules": "[parameters('virtualNetworkRules')]",
           "ipRules": "[parameters('ipRules')]",
           "defaultAction": "Deny"
         },
