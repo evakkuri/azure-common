@@ -1,0 +1,54 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccountName": {
+            "type": "string",
+            "defaultValue": "eliasteststorage",
+            "metadata": {
+                "description": "Name of Storage Account to provision"
+            }
+        },
+        "containerName": {
+            "type": "string",
+            "defaultValue": "eliastestcontainer",
+            "metadata": {
+                "description": "Name of container to add to Storage Account"
+            }
+        },
+        "containerPublicAccessLevel": {
+            "type": "string",
+            "defaultValue": "None",
+            "metadata": {
+                "description": "Level of public access to storage container."
+            }
+        }
+    },
+    "variables": {
+        "templateBaseUrl": "https://raw.githubusercontent.com/evakkuri/azure-common/master/templates/"
+    },
+    "resources": [
+        {
+            "comments": "Deploy Storage Account",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "name": "StorageAccount",
+            "tags": {
+                "displayName": "Storage Account"
+            },
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('templateBaseUrl'), 'common-storageaccount.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "resourceName": {
+                        "value": "[parameters('storageAccountName')]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}

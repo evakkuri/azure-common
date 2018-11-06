@@ -10,8 +10,8 @@ $location = "northeurope"
 $deploymentName = "deploymentTest" + '-' + ((Get-Date).ToUniversalTime()).ToString('MMdd-HHmm')
 $parentFolder = Split-Path -Path $PSScriptRoot -Parent
 
-$deploymentTemplateFile = $parentFolder + "\azure-common\common-keyvault.json"
-$deploymentParametersFile = $parentFolder + "\azure-common\common-keyvault.parameters.json"
+$deploymentTemplateFile = $parentFolder + "\templates\common-keyvault.json"
+$deploymentParametersFile = $parentFolder + "\templates\common-keyvault.parameters.json"
 
 ## Create resource group
 New-AzureRmResourceGroup -Name $rgName -Location $location -Force
