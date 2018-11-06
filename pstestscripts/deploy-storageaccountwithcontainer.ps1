@@ -2,7 +2,7 @@
 $ScriptStart = (Get-Date)
 
 # Define common variables
-$rgName = "commonservices"
+$rgName = "storagewithcontainertest"
 $location = "northeurope"
 $deploymentName = "deploymentTest" + '-' + ((Get-Date).ToUniversalTime()).ToString('MMdd-HHmm')
 
