@@ -1,0 +1,83 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "collation": {
+      "type": "string",
+      "defaultValue": "SQL_Latin1_General_CP1_CI_AS",
+      "metadata": {
+        "description": "The collation of the database. If createMode is not Default, this value is ignored."
+      }
+    },
+    "edition": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [
+        "Basic"
+      ],
+      "metadata": {
+        "description": "The SKU of the database, basically the size & power with cost impact"
+      }
+    },
+    "maxSizeBytes": {
+      "type": "string",
+      "defaultValue": "2147483648",
+      "metadata": {
+        "description": "The max size of the database expressed in bytes."
+      }
+    },
+    "resourceName": {
+      "type": "string",
+      "metadata": {
+        "description": "SQL Database name"
+      }
+    },
+    "sampleName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The sample dataset name to be used when creating the database"
+      }
+    },
+    "serverName": {
+      "type": "string",
+      "metadata": {
+        "description": "SQL Server name, for deploying the database"
+      }
+    },
+    "serverLocation": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "SQL Server location, for deploying the database"
+      }
+    }
+  },
+  "variables": {
+    "sqlServerName": "[parameters('serverName')]",
+    "sqlDatabaseName": "[parameters('resourceName')]",
+    "databaseFullName": "[concat(variables('sqlServerName'), '/', variables('sqlDatabaseName'))]",
+    "databaseLocation": "[parameters('serverLocation')]"
+  },
+  "resources": [
+    {
+      "name": "[variables('databaseFullName')]",
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2014-04-01-preview",
+      "tags": {},
+      "location": "[variables('databaseLocation')]",
+      "properties": {
+        "collation": "[parameters('collation')]",
+        "edition": "[parameters('edition')]",
+        "maxSizeBytes": "[parameters('maxSizeBytes')]",
+        "sampleName": "[parameters('sampleName')]"
+      }
+    }
+  ],
+  "outputs": {
+    "sqlDatabaseName": {
+      "type": "string",
+      "value": "[variables('sqlDatabaseName')]"
+    }
+  }
+}

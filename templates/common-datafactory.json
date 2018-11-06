@@ -1,0 +1,34 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "resourceName": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 63,
+      "metadata": {
+        "description": "Can contain letters, numbers and hyphens. Case-insensitive"
+      }
+    }
+  },
+  "variables": {
+    "dataFactoryName":  "[parameters('resourceName')]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-10-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('dataFactoryName')]",
+      "properties": {},
+      "resources": [],
+      "tags": {},
+      "type": "Microsoft.DataFactory/datafactories"
+    }
+  ],
+  "outputs": {
+    "dataFactoryName": {
+      "type": "string",
+      "value": "[variables('dataFactoryName')]"
+    }
+  }
+}

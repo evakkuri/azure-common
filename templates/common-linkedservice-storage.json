@@ -1,0 +1,63 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "dataFactoryName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the datafactory where to deploy the linked service"
+      }
+    },
+    "resourceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the new linked service"
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the storage account to use with the linked service"
+      }
+    },
+    "storageAccountKey": {
+      "type": "string",
+      "metadata": {
+        "description": "The key to use when accessing the storage account"
+      }
+    }
+  },
+  "variables": {
+    "linkedServiceName": "[parameters('resourceName')]"
+  },
+  "resources": [
+    {
+      "type": "microsoft.dataFactory/datafactories",
+      "name": "[parameters('dataFactoryName')]",
+      "apiVersion": "2015-10-01",
+      "location": "[resourceGroup().location]",
+      "resources": [
+        {
+          "dependsOn": [
+            "[concat('Microsoft.DataFactory/dataFactories/', parameters('dataFactoryName'))]"
+          ],
+          "type": "linkedServices",
+          "apiVersion": "2015-10-01",
+          "name": "[variables('linkedServiceName')]",
+          "properties": {
+            "type": "AzureStorage",
+            "typeProperties": {
+              "connectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccountName'), ';AccountKey=', parameters('storageAccountKey'), ';EndpointSuffix=core.windows.net')]"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "linkedServiceName": {
+      "type": "string",
+      "value": "[variables('linkedServiceName')]"
+    }
+  }
+}

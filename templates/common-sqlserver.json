@@ -1,0 +1,89 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "resourceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Naming guidelines for Azure SQL Server (to be verified)"
+      }
+    },
+    "sqlAdminLogin": {
+      "type": "string",
+      "metadata": {
+        "description": "Admin login for SQL server"
+      }
+    },
+    "sqlAdminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Admin password for SQL server"
+      }
+    }
+  },
+  "variables": {
+    "deployLocation": "[resourceGroup().location]",
+    "serverName": "[parameters('resourceName')]"
+  },
+  "resources": [
+    {
+      "name": "[variables('serverName')]",
+      "type": "Microsoft.Sql/servers",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2014-04-01",
+      "tags": {},
+      "properties": {
+        "administratorLogin": "[parameters('sqlAdminLogin')]",
+        "administratorLoginPassword": "[parameters('sqlAdminPassword')]",
+        "version": "12.0"
+      },
+      "resources": [
+        {
+          "apiVersion": "2014-04-01-preview",
+          "type": "firewallrules",
+          "dependsOn": [
+            "[concat('Microsoft.Sql/servers/', variables('serverName'))]"
+          ],
+          "location": "[variables('deployLocation')]",
+          "name": "AllowAllWindowsAzureIps",
+          "properties": {
+            "endIpAddress": "0.0.0.0",
+            "startIpAddress": "0.0.0.0"
+          }
+        },
+        {
+          "apiVersion": "2014-04-01-preview",
+          "type": "firewallrules",
+          "dependsOn": [
+            "[concat('Microsoft.Sql/servers/', variables('serverName'))]"
+          ],
+          "location": "[variables('deployLocation')]",
+          "name": "AllowOfficeNetwork",
+          "properties": {
+            "endIpAddress": "81.22.162.228",
+            "startIpAddress": "81.22.162.228"
+          }
+        },
+        {
+          "apiVersion": "2014-04-01-preview",
+          "type": "firewallrules",
+          "dependsOn": [
+            "[concat('Microsoft.Sql/servers/', variables('serverName'))]"
+          ],
+          "location": "[variables('deployLocation')]",
+          "name": "AllowVPN",
+          "properties": {
+            "endIpAddress": "78.41.240.74",
+            "startIpAddress": "78.41.240.74"
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "sqlServerName": {
+      "type": "string",
+      "value": "[parameters('resourceName')]"
+    }
+  }
+}

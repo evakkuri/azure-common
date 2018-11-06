@@ -1,0 +1,88 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "resourceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of linked service"
+      }
+    },
+    "dataFactoryName": {
+      "type": "string",
+      "metadata": {
+        "description": "Data Factory where to deploy the new linked service"
+      }
+    },
+    "dataFactoryLocation": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location of Data Factory"
+      }
+    },
+    "dataLakeAnalyticsAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of Data Lake Analytics account to which to link"
+      }
+    },
+    "dataLakeAnalyticsRgName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "Name of the resource group where the target Data Lake Analytics account resides"
+      }
+    },
+    "servicePrincipalId": {
+      "type": "string",
+      "metadata": {
+        "description": "The ID of the Service Principal used to access the Data Lake Analytics account"
+      }
+    },
+    "servicePrincipalKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The key of the Service Principal used to access the Data Lake Analytics account"
+      }
+    }
+  },
+  "variables": {
+    "linkedServiceName": "[parameters('resourceName')]",
+    "tenantId": "[subscription().tenantId]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.DataFactory/datafactories",
+      "name": "[parameters('dataFactoryName')]",
+      "apiVersion": "2015-10-01",
+      "location": "[parameters('dataFactoryLocation')]",
+      "resources": [
+        {
+          "dependsOn": [
+            "[concat('Microsoft.DataFactory/dataFactories/', parameters('dataFactoryName'))]"
+          ],
+          "type": "linkedServices",
+          "apiVersion": "2015-10-01",
+          "name": "[variables('linkedServiceName')]",
+          "properties": {
+            "type": "AzureDataLakeAnalytics",
+            "typeProperties": {
+              "accountName": "[parameters('dataLakeAnalyticsAccountName')]",
+              "servicePrincipalId": "[parameters('servicePrincipalId')]",
+              "servicePrincipalKey": "[parameters('servicePrincipalKey')]",
+              "tenant": "[variables('tenantId')]",
+              "resourceGroupName": "[parameters('dataLakeAnalyticsRgName')]"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "linkedServiceName": {
+      "type": "string",
+      "value": "[variables('linkedServiceName')]"
+    }
+  }
+}

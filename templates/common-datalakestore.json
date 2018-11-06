@@ -1,0 +1,105 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "resourceName": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 24,
+      "metadata": {
+        "description": "Name of the Data Lake Store to deploy. Can contain only lowercase letters and numbers, no hyphens"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "allowedValues": [
+        "northeurope"
+      ],
+      "metadata": {
+        "description": "Location where to deploy the new Data Lake Store"
+      }
+    },
+    "firewallState": {
+      "type": "string",
+      "defaultValue": "Enabled",
+      "allowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "metadata": {
+        "description": "Switch for using Data Lake Stores firewall settings"
+      }
+    },
+    "firewallRules": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "name": "AllowAllWindowsAzureIps",
+          "startIpAddress": "0.0.0.0",
+          "endIpAddress": "0.0.0.0"
+        }
+      ],
+      "metadata": {
+        "description": "List of firewall rules to be implemented in the Data Lake Store"
+      }
+    },
+    "firewallAllowAzureIps": {
+      "type": "string",
+      "defaultValue": "Enabled",
+      "allowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "metadata": {
+        "description": "Switch to allow Azure IP addresses when using the Data Lake Store firewall"
+      }
+    }
+  },
+  "variables": {
+    "dataLakeStoreName": "[parameters('resourceName')]",
+    "firewallRules": "[parameters('firewallRules')]"
+  },
+  "resources": [
+    {
+      "comments": "Deploy the Data Lake Store. By default encrypted with service-managed keys",
+      "name": "[variables('dataLakeStoreName')]",
+      "type": "Microsoft.DataLakeStore/accounts",
+      "location": "[parameters('location')]",
+      "apiVersion": "2016-11-01",
+      "properties": {
+        "encryptionState": "Enabled",
+        "firewallState": "[parameters('firewallState')]",
+        "firewallAllowAzureIps": "[parameters('firewallAllowAzureIps')]"
+      }
+    },
+    {
+      "comments": "Iterate over and deploy list of firewall rules given as parameter. If no rules have been specified, a default rule to allow Azure traffic will be added.",
+      "dependsOn": [
+        "[variables('dataLakeStoreName')]"
+      ],
+      "type": "Microsoft.DataLakeStore/accounts/firewallRules",
+      "apiVersion": "2016-11-01",
+      "condition": "[greater(length(variables('firewallRules')), 0)]",
+      "copy": {
+        "name": "iterator",
+        "count": "[length(variables('firewallRules'))]"
+      },
+      "name": "[concat(variables('dataLakeStoreName'), '/' , variables('firewallRules')[copyIndex()].name)]",
+      "properties": {
+        "startIpAddress": "[variables('firewallRules')[copyIndex()].startIpAddress]",
+        "endIpAddress": "[variables('firewallRules')[copyIndex()].startIpAddress]"
+      }
+    }
+  ],
+  "outputs": {
+    "dataLakeStoreName": {
+      "type": "string",
+      "value": "[variables('dataLakeStoreName')]"
+    },
+    "dataLakeStoreAccount": {
+      "type": "object",
+      "value": "[reference(resourceId('Microsoft.DataLakeStore/accounts',variables('dataLakeStoreName')))]"
+    }
+  }
+}

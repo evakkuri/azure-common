@@ -1,0 +1,76 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "dataFactoryName": {
+      "type": "string",
+      "metadata": {
+        "description": "Data Factory into which to deploy the Linked Service"
+      }
+    },
+    "resourceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Linked Service to deploy"
+      }
+    },
+    "sqlServerName": {
+      "type": "string",
+      "metadata": {
+        "description": "SQL Server to use for the Linked Service"
+      }
+    },
+    "sqlDatabaseName": {
+      "type": "string",
+      "metadata": {
+        "description": "SQL Database to use for the Linked Service"
+      }
+    },
+    "sqlServerUserName": {
+      "type": "string",
+      "metadata": {
+        "description": "User name with which to log in to the SQL Server. Should be admin user."
+      }
+    },
+    "sqlServerPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password with which to log in to the SQL Server"
+      }
+    }
+  },
+  "variables": {
+    "linkedServiceName": "[parameters('resourceName')]",
+    "sqlServerPassword": "[parameters('sqlServerPassword')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.dataFactory/datafactories",
+      "apiVersion": "2015-10-01",
+      "name": "[parameters('dataFactoryName')]",
+      "location": "[resourceGroup().location]",
+      "resources": [
+        {
+          "dependsOn": [
+            "[concat('Microsoft.DataFactory/dataFactories/', parameters('dataFactoryName'))]"
+          ],
+          "type": "linkedServices",
+          "name": "[variables('linkedServiceName')]",
+          "apiVersion": "2015-10-01",
+          "properties": {
+            "type": "AzureSqlDatabase",
+            "typeProperties": {
+              "connectionString": "[concat('Data Source=tcp:', parameters('sqlServerName'), '.database.windows.net,1433;Initial Catalog=', parameters('sqlDatabaseName'), ';Integrated Security=False;User ID=', parameters('sqlServerUserName'), '@', parameters('sqlServerName'), ';Password=', variables('sqlServerPassword'), ';Connect Timeout=30;Encrypt=True')]"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "linkedServiceName": {
+      "type": "string",
+      "value": "[variables('linkedServiceName')]"
+    }
+  }
+}

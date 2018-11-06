@@ -1,0 +1,45 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "shortDescription": {
+      "type": "string",
+      "defaultValue": "azure",
+      "metadata": {
+        "description": "Descriptive name for use case or solution to which the component belongs."
+      }
+    },
+    "shortEnvironment": {
+      "type": "string",
+      "maxLength": 3,
+      "minLength": 3,
+      "metadata": {
+        "description": "Identifier for deployment environment. Must be exactly 3 letters long. E.g. 'dev' or 'prd'"
+      }
+    },
+    "locationName": {
+      "type": "string",
+      "maxLength": 3,
+      "minLength": 3,
+      "metadata": {
+        "description": "Identifier for deployment location. Must be exactly 3 letters long. E.g. 'neu' or 'weu'"
+      }
+    }
+  },
+  "variables": {
+    "nameconvention-long": "[concat(parameters('shortDescription') , '-' , parameters('shortEnvironment') , '-' , parameters('locationName'),'-')]",
+    "nameconvention-short": "[concat(parameters('shortDescription') , parameters('shortEnvironment') , parameters('locationName'))]"
+  },
+  "resources": [
+  ],
+  "outputs": {
+    "namePrefixLong": {
+      "type": "string",
+      "value": "[variables('nameconvention-long')]"
+    },
+    "namePrefixShort": {
+      "type": "string",
+      "value": "[variables('nameconvention-short')]"
+    }
+  }
+}
