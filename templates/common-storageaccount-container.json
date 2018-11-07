@@ -32,24 +32,16 @@
     },
     "resources": [
         {
-            "comments": "Deploy blob container to an existing Storage Account",
-            "type": "Microsoft.Storage/storageAccounts",
-            "name": "[parameters('storageAccountName')]",
-            "location": "[resourceGroup().location]",
-            "apiVersion": "2018-02-01",
-            "resources": [
-                {
-                    "name": "[concat('default/', variables('containerName'))]",
-                    "type": "blobServices/containers",
-                    "apiVersion": "2018-03-01-preview",
-                    "dependsOn": [
-                        "[parameters('storageAccountName')]"
-                    ],
-                    "properties": {
-                        "publicAccess": "[parameters('publicAccessLevel')]"
-                    }
-                }
-            ]
+            "comments": "Deploy blob container to existing Storage Account (storage account name given as parameter).",
+            "dependsOn": [
+                "[parameters('storageAccountName')]"
+            ],
+            "name": "[concat(parameters('storageAccountName'),'/default/', variables('containerName'))]",
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2018-03-01-preview",
+            "properties": {
+                "publicAccess": "[parameters('publicAccessLevel')]"
+            }
         }
     ],
     "outputs": {}
