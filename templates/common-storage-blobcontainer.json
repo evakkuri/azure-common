@@ -39,7 +39,10 @@
     "resources": [
         {
             "comments": "Deploy blob container to existing Storage Account (storage account name given as parameter).",
-            "name": "[concat(parameters('storageAccountId'),'/default/', variables('containerName'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+            ],
+            "name": "[concat(parameters('storageAccountName'),'/default/', variables('containerName'))]",
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2018-03-01-preview",
             "properties": {
