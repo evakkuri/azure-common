@@ -49,6 +49,7 @@
             }
         },
         {
+<<<<<<< HEAD
             "comments": "Deploy blob container to existing Storage Account (storage account name given as parameter)",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
@@ -71,6 +72,26 @@
                     }
                 }
             }
+=======
+            "comments": "Deploy blob container to an existing Storage Account",
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[parameters('storageAccountName')]",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2018-02-01",
+            "resources": [
+                {
+                    "name": "[concat('default/', parameters('containerName'))]",
+                    "type": "blobServices/containers",
+                    "apiVersion": "2018-03-01-preview",
+                    "dependsOn": [
+                        "[parameters('storageAccountName')]"
+                    ],
+                    "properties": {
+                        "publicAccess": "[parameters('containerPublicAccessLevel')]"
+                    }
+                }
+            ]
+>>>>>>> origin/master
         }
     ],
     "outputs": {}
