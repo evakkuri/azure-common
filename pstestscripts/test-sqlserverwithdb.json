@@ -16,7 +16,7 @@
         }
     },
     "variables": {
-        "templateBaseUrl": "https://raw.githubusercontent.com/evakkuri/azure-common/master/templates/"
+        "templateBaseUrl": "https://raw.githubusercontent.com/evakkuri/azure-common/feature/sql/templates/"
     },
     "resources": [
         {
@@ -32,7 +32,7 @@
                 },
                 "parameters": {
                     "resourceName": {
-                        "value": "testsqlserv"
+                        "value": "eliastestsqlserv"
                     },
                     "sqlAdminLogin": {
                         "value": "[parameters('sqlAdminLogin')]"

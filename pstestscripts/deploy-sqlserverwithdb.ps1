@@ -3,7 +3,7 @@ $ScriptStart = (Get-Date)
 
 # Define common variables
 $rgName = "sqlserverwithdbtest"
-$location = "northeurope"
+$location = "westeurope"
 $deploymentName = "deploymentTest" + '-' + ((Get-Date).ToUniversalTime()).ToString('MMdd-HHmm')
 
 $workFolder = $PSScriptRoot
@@ -29,7 +29,7 @@ $deploymentParams = @{
 New-AzureRmResourceGroupDeployment @deploymentParams -Force
 
 # Remove resource group
-#Remove-AzureRmResourceGroup -Name $rgName -Force -Verbose
+Remove-AzureRmResourceGroup -Name $rgName -Force -Verbose
 
 # Stop timer
 $ScriptEnd = (Get-Date)
