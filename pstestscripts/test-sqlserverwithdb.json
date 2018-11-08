@@ -1,0 +1,69 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "sqlAdminLogin": {
+            "type": "string",
+            "metadata": {
+                "description": "Admin user name to use for SQL Server to be deployed"
+            }
+        },
+        "sqlAdminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Admin password for SQL Server to be provisioned"
+            }
+        }
+    },
+    "variables": {
+        "templateBaseUrl": "https://raw.githubusercontent.com/evakkuri/azure-common/master/templates/"
+    },
+    "resources": [
+        {
+            "comments": "Deploy SQL Server",
+            "name": "sqlServer",
+            "apiVersion": "2017-05-10",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('templateBaseUrl'), 'common-sql-server.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "resourceName": {
+                        "value": "testsqlserv"
+                    },
+                    "sqlAdminLogin": {
+                        "value": "[parameters('sqlAdminLogin')]"
+                    },
+                    "sqlAdminPassword": {
+                        "value": "[parameters('sqlAdminPassword')]"
+                    }
+                }
+            }
+        },
+        {
+            "comments": "Deploy SQL Database into the SQL Server created previously",
+            "name": "sqlDb",
+            "apiVersion": "2017-05-10",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('templateBaseUrl'), 'common-sql-db.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "resourceName": {
+                        "value": "testsqldb"
+                    },
+                    "serverName": {
+                        "value": "[reference('sqlServer').outputs.sqlServerName.value]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}
