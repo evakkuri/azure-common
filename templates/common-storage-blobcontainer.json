@@ -14,6 +14,12 @@
                 "description": "Name of Storage Account to which to deploy the new container"
             }
         },
+        "storageAccountId": {
+            "type": "string",
+            "metadata": {
+                "description": "Full Azure ID of Storage Account to which to deploy the new container"
+            }
+        },
         "publicAccessLevel": {
             "type": "string",
             "defaultValue": "None",
@@ -32,24 +38,16 @@
     },
     "resources": [
         {
-            "comments": "Deploy blob container to an existing Storage Account",
-            "type": "Microsoft.Storage/storageAccounts",
-            "name": "[parameters('storageAccountName')]",
-            "location": "[resourceGroup().location]",
-            "apiVersion": "2018-02-01",
-            "resources": [
-                {
-                    "name": "[concat('default/', variables('containerName'))]",
-                    "type": "blobServices/containers",
-                    "apiVersion": "2018-03-01-preview",
-                    "dependsOn": [
-                        "[parameters('storageAccountName')]"
-                    ],
-                    "properties": {
-                        "publicAccess": "[parameters('publicAccessLevel')]"
-                    }
-                }
-            ]
+            "comments": "Deploy blob container to existing Storage Account",
+            "dependsOn": [
+                "[parameters('storageAccountId')]"
+            ],
+            "name": "[concat(parameters('storageAccountName'),'/default/', variables('containerName'))]",
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2018-03-01-preview",
+            "properties": {
+                "publicAccess": "[parameters('publicAccessLevel')]"
+            }
         }
     ],
     "outputs": {}
