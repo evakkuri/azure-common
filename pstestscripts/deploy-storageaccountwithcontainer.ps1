@@ -3,7 +3,7 @@ $ScriptStart = (Get-Date)
 
 # Define common variables
 $rgName = "storagewithcontainertest"
-$location = "northeurope"
+$location = "westeurope"
 $deploymentName = "deploymentTest" + '-' + ((Get-Date).ToUniversalTime()).ToString('MMdd-HHmm')
 
 $workFolder = $PSScriptRoot
