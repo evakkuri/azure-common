@@ -1,0 +1,112 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccountIpRules": {
+            "type": "array",
+            "defaultValue": [],
+            "metadata": {
+                "description": "Optional. IP rules for Storage Account"
+            }
+        },
+        "storageAccountVnet": {
+            "type": "array",
+            "defaultValue": [],
+            "metadata": {
+                "description": "Optional. VNET to which to attach Storage Account"
+            }
+        },
+        "containerName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of container to add to Storage Account"
+            }
+        },
+        "containerPublicAccessLevel": {
+            "type": "string",
+            "defaultValue": "None",
+            "metadata": {
+                "description": "Level of public access to storage container."
+            }
+        }
+    },
+    "variables": {
+        "gitHubBranchName": "feature/cicdstoragetemplate",
+        "templateBaseUrl": "[concat('https://raw.githubusercontent.com/evakkuri/azure-common/', variables('gitHubBranchName'), '/templates/')]"
+    },
+    "resources": [
+        {
+            "comments": "Deploy naming convention",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "name": "NamingConvention",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('templateBaseUrl'), 'common-namingconvention.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "shortDescription": {
+                        "value": "cicd"
+                    },
+                    "shortEnvironment": {
+                        "value": "tst"
+                    },
+                    "locationName": {
+                        "value": "weu"
+                    }
+                }
+            }
+        },
+        {
+            "comments": "Deploy Storage Account",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "name": "StorageAccount",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('templateBaseUrl'), 'common-storage-account.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "resourceName": {
+                        "value": "[concat(reference('NamingConvention').outputs.namePrefixShort.value, 'asa')]"
+                    },
+                    "ipRules": {
+                        "value": "[parameters('storageAccountIpRules')]"
+                    },
+                    "virtualNetworkRules": {
+                        "value": "[parameters('storageAccountVnet')]"
+                    }
+                }
+            }
+        },
+        {
+            "comments": "Deploy blob container to existing Storage Account (storage account name given as parameter)",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "name": "StorageContainer",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('templateBaseUrl'), 'common-storage-blobcontainer.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "resourceName": {
+                        "value": "[parameters('containerName')]"
+                    },
+                    "storageAccountName": {
+                        "value": "[reference('StorageAccount').outputs.storageAccountName.value]"
+                    },
+                    "publicAccessLevel": {
+                        "value": "[parameters('containerPublicAccessLevel')]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}
