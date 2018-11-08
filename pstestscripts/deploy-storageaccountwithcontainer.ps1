@@ -30,7 +30,7 @@ New-AzureRmResourceGroupDeployment @deploymentParams -Force
 #$storageAccountKey = (Get-AzureRmResourceGroupDeployment -ResourceGroupName $rgName -Name $deploymentName).Outputs.storageAccountKey.value
 
 # Remove resource group
-#Remove-AzureRmResourceGroup -Name $rgName -Force -Verbose
+Remove-AzureRmResourceGroup -Name $rgName -Force -Verbose
 
 # Stop timer
 $ScriptEnd = (Get-Date)
