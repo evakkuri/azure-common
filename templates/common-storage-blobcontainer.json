@@ -31,6 +31,13 @@
             "metadata": {
                 "description": "Level of public access (without SAS token) to container. None for no access, Blob for file access, Container for container access"
             }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Azure location to which to deploy the container"
+            }
         }
     },
     "variables": {
@@ -39,12 +46,13 @@
     "resources": [
         {
             "comments": "Deploy blob container to existing Storage Account",
-            "dependsOn": [
-                "[parameters('storageAccountId')]"
-            ],
-            "name": "[concat(parameters('storageAccountName'),'/default/', variables('containerName'))]",
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2018-03-01-preview",
+            "tags": {
+                "displayName": "BlobContainer"
+            },
+            "location": "[parameters('location')]",
+            "name": "[concat(parameters('storageAccountName'),'/default/', variables('containerName'))]",
             "properties": {
                 "publicAccess": "[parameters('publicAccessLevel')]"
             }
