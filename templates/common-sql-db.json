@@ -64,7 +64,9 @@
       "name": "[variables('databaseFullName')]",
       "type": "Microsoft.Sql/servers/databases",
       "apiVersion": "2014-04-01-preview",
-      "tags": {},
+      "tags": {
+        "displayName": "SqlDb"
+      },
       "location": "[variables('databaseLocation')]",
       "properties": {
         "collation": "[parameters('collation')]",
