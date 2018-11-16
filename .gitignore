@@ -4,6 +4,9 @@
 # Azure Resource Manager parameter files
 *.parameters.json
 
+# Visual Studio Code settings
+.vscode/*
+
 # User-specific files
 *.suo
 *.user
