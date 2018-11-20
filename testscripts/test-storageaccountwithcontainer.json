@@ -2,6 +2,18 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "templateStorageUri": {
+            "type": "string",
+            "metadata": {
+                "description": "URI for reference template Storage Account"
+            }
+        },
+        "templateStorageToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "SAS token for reference template Storage Account"
+            }
+        },
         "storageAccountName": {
             "type": "string",
             "defaultValue": "eliasteststorage",
@@ -24,11 +36,7 @@
             }
         }
     },
-    "variables": {
-        "templateName": "common-storage-blobcontainer.json",
-        "gitHubBranchName": "feature/storage-container",
-        "templateBaseUrl": "[concat('https://raw.githubusercontent.com/evakkuri/azure-common/', variables('gitHubBranchName'), '/templates/')]"
-    },
+    "variables": {},
     "resources": [
         {
             "comments": "Deploy Storage Account",
@@ -38,7 +46,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(variables('templateBaseUrl'), 'common-storage-account.json')]",
+                    "uri": "[concat(parameters('templateStorageUri'), '/', 'common-storage-account.json', parameters('templateStorageToken'))]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -56,7 +64,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(variables('templateBaseUrl'), 'common-storage-blobcontainer.json')]",
+                    "uri": "[concat(parameters('templateStorageUri'), '/', 'common-storage-blobcontainer.json', parameters('templateStorageToken'))]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -65,9 +73,6 @@
                     },
                     "storageAccountName": {
                         "value": "[reference('StorageAccount').outputs.storageAccountName.value]"
-                    },
-                    "storageAccountId": {
-                        "value": "[reference('StorageAccount').outputs.storageAccountId.value]"
                     }
                 }
             }
