@@ -14,12 +14,6 @@
                 "description": "Name of Storage Account to which to deploy the new container"
             }
         },
-        "storageAccountId": {
-            "type": "string",
-            "metadata": {
-                "description": "Full Azure ID of Storage Account to which to deploy the new container"
-            }
-        },
         "publicAccessLevel": {
             "type": "string",
             "defaultValue": "None",
