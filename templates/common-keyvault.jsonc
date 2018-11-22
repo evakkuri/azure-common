@@ -1,0 +1,190 @@
+//Deploy Key Vault
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resourceName": {
+            "type": "string",
+            "minLength": 1,
+            "metadata": {
+                "description": "KeyVault name"
+            }
+        },
+        "accessPolicies": {
+            "type": "array",
+            "defaultValue": [],
+            "metadata": {
+                "description": "Access policies object {\"tenantId\":\"\",\"objectId\":\"\",\"permissions\":{\"keys\":[\"\"],\"secrets\":[\"\"]}}"
+            }
+        },
+        "logsRetentionInDays": {
+            "type": "int",
+            "defaultValue": 30,
+            "minValue": 0,
+            "maxValue": 365,
+            "metadata": {
+                "description": "Specifies the number of days that logs are gonna be kept. If you do not want to apply any retention policy and retain data forever, set value to 0."
+            }
+        },
+        "enableVaultForDeployment": {
+            "type": "bool",
+            "defaultValue": false,
+            "allowedValues": [
+                true,
+                false
+            ],
+            "metadata": {
+                "description": "Specifies if the vault is enabled for deployment by script or compute (VM, Service Fabric, ...)"
+            }
+        },
+        "enableVaultForTemplateDeployment": {
+            "type": "bool",
+            "defaultValue": false,
+            "allowedValues": [
+                true,
+                false
+            ],
+            "metadata": {
+                "description": "Specifies if the vault is enabled for a template deployment"
+            }
+        },
+        "enableVaultForDiskEncryption": {
+            "type": "bool",
+            "defaultValue": false,
+            "allowedValues": [
+                true,
+                false
+            ],
+            "metadata": {
+                "description": "Specifies if the azure platform has access to the vault for enabling disk encryption scenarios."
+            }
+        },
+        "vaultSku": {
+            "type": "string",
+            "defaultValue": "Standard",
+            "allowedValues": [
+                "Standard",
+                "Premium"
+            ],
+            "metadata": {
+                "description": "Specifies the SKU for the vault"
+            }
+        },
+        "resourceLocks": {
+            "type": "string",
+            "allowedValues": [
+                "None",
+                "CanNotDelete"
+            ],
+            "defaultValue": "None"
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location for all resources."
+            }
+        },
+        "diagnosticStorageAccountId": {
+            "type": "string",
+            "metadata": {
+                "description": "Full Azure Id of Storage Account where to send Diagnostic Logs"
+            }
+        },
+        "firewallIpRules": {
+            "type": "array",
+            "defaultValue": [],
+            "metadata": {
+                "description": "Array of IP rules to use for firewall setting"
+            }
+        },
+        "firewallVnets": {
+            "type": "array",
+            "defaultValue": [],
+            "metadata": {
+                "description": "Array of full Azure Id's of VNET's to which to attach the Key Vault"
+            }
+        }
+    },
+    "variables": {
+        "uniqueString": "[uniqueString(subscription().id, resourceGroup().id)]"
+    },
+    "resources": [
+        {
+            "comments": "Deploy Key Vault",
+            "type": "Microsoft.KeyVault/vaults",
+            "name": "[parameters('resourceName')]",
+            "apiVersion": "2016-10-01",
+            "location": "[parameters('location')]",
+            "tags": {
+                "displayName": "Key Vault with logging"
+            },
+            "properties": {
+                "enabledForDeployment": "[parameters('enableVaultForDeployment')]",
+                "enabledForTemplateDeployment": "[parameters('enableVaultForTemplateDeployment')]",
+                "enabledForDiskEncryption": "[parameters('enableVaultForDiskEncryption')]",
+                "tenantId": "[subscription().tenantId]",
+                "accessPolicies": "[parameters('AccessPolicies')]",
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "defaultAction": "Deny",
+                    "ipRules": "[parameters('firewallIpRules')]",
+                    "virtualNetworkRules": "[parameters('firewallVnets')]"
+                },
+                "sku": {
+                    "name": "[parameters('vaultSku')]",
+                    "family": "A"
+                }
+            },
+            "resources": [
+                {
+                    "comments": "Configure settings for diagnostic logging and metrics",
+                    "type": "Microsoft.KeyVault/vaults/providers/diagnosticsettings",
+                    "name": "[concat(parameters('resourceName'), '/Microsoft.Insights/service')]",
+                    "apiVersion": "2016-09-01",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[concat('Microsoft.KeyVault/vaults/', parameters('resourceName'))]"
+                    ],
+                    "properties": {
+                        "storageAccountId": "[parameters('diagnosticStorageAccountId')]",
+                        "logs": [
+                            {
+                                "category": "AuditEvent",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "enabled": true,
+                                    "days": "[parameters('logsRetentionInDays')]"
+                                }
+                            }
+                        ],
+                        "metrics": [
+                            {
+                                "category": "AllMetrics",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "enabled": true,
+                                    "days": "[parameters('logsRetentionInDays')]"
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "comments": "Add lock to resource if desired",
+                    "type": "Microsoft.KeyVault/vaults/providers/locks",
+                    "apiVersion": "2016-09-01",
+                    "condition": "[not(equals(parameters('resourceLocks'),'None'))]",
+                    "name": "[concat(parameters('resourceName'), '/Microsoft.Authorization/deleteLock')]",
+                    "dependsOn": [
+                        "[concat('Microsoft.KeyVault/vaults/', parameters('resourceName'))]"
+                    ],
+                    "properties": {
+                        "level": "[parameters('resourceLocks')]"
+                    }
+                }
+            ]
+        }
+    ],
+    "outputs": {}
+}
