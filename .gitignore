@@ -3,6 +3,7 @@
 
 # Azure Resource Manager parameter files
 *.parameters.json
+*.parameters.jsonc
 
 # Visual Studio Code settings
 .vscode/*

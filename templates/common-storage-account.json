@@ -10,6 +10,17 @@
         "description": "Name of Storage Account. Only alphanumeric values allowed."
       }
     },
+    "networkDefaultAction": {
+      "type": "string",
+      "allowedValues": [
+        "Deny",
+        "Allow"
+      ],
+      "defaultValue": "Deny",
+      "metadata": {
+        "description": "Optional. Default to deny or allow to incoming network requests"
+      }
+    },
     "ipRules": {
       "type": "array",
       "defaultValue": [],
@@ -49,7 +60,7 @@
           "bypass": "Logging, Metrics, AzureServices",
           "virtualNetworkRules": "[parameters('virtualNetworkRules')]",
           "ipRules": "[parameters('ipRules')]",
-          "defaultAction": "Deny"
+          "defaultAction": "[parameters('networkDefaultAction')]"
         },
         "supportsHttpsTrafficOnly": true,
         "encryption": {
