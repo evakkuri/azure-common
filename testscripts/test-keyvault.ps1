@@ -5,12 +5,12 @@
 $ScriptStart = (Get-Date)
 
 ## Variable definitions
-$rgName = "keyvaulttest"
+$rgName = "keyvaulttest3"
 $location = "northeurope"
 $deploymentName = "deploymentTest" + '-' + ((Get-Date).ToUniversalTime()).ToString('MMdd-HHmm')
 $parentFolder = Split-Path -Path $PSScriptRoot -Parent
 
-$deploymentTemplateFile = $parentFolder + "\templates\common-keyvault.json"
+$deploymentTemplateFile = $parentFolder + "\templates\common-keyvault.jsonc"
 $deploymentParametersFile = $parentFolder + "\templates\common-keyvault.parameters.json"
 
 ## Create resource group
