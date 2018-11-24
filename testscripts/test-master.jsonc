@@ -53,12 +53,6 @@
                 "description": "Mandatory. Key Vault name"
             }
         },
-        "diagnosticStorageAccountId": {
-            "type": "string",
-            "metadata": {
-                "description": "Mandatory. Full Azure Id of Storage Account where to send Diagnostic Logs"
-            }
-        },
         "keyVaultAccessPolicies": {
             "type": "array",
             "defaultValue": [],
@@ -149,7 +143,36 @@
             }
         }
     },
-    "variables": {},
+    "functions": [
+        {
+            "namespace": "tools",
+            "members": {
+                //Naming convention function used for naming deployed components
+                "uniqueName": {
+                    "parameters": [
+                        {
+                            //Name of component to use
+                            "name": "componentName",
+                            "type": "string"                        
+                        },
+                        {
+                            //Maximum length of component name
+                            "name": "maxLength",
+                            "type": "int"
+                        }
+                    ],
+                    "output": {
+                        //Return name with component name part and padding of unique string to fill remaining space
+                        "type": "string",
+                        "value": "[concat(toLower(parameters('componentName')), substring(uniqueString(subscription().id, resourceGroup().id), 0, sub(parameters('maxLength'), length(parameters('componentName')))))]"
+                    }
+                }
+            }
+        }
+    ],
+    "variables": {
+        "uniqueString": "[uniqueString(subscription().id, resourceGroup().id)]"
+    },
     "resources": [
         {
             "comments": "Deploy Storage Account",
@@ -164,7 +187,7 @@
                 },
                 "parameters": {
                     "resourceName": {
-                        "value": "[parameters('storageAccountName')]"
+                        "value": "[tools.uniqueName('asa', 24)]"
                     }
                 }
             }
@@ -266,7 +289,7 @@
         // Data Lake Store
         // Data Lake Analytics
         // Data Factory V1
-        // Data Factory V2 + Linked Services + Dataset + Pipelin
+        // Data Factory V2 + Linked Services + Dataset + Pipeline
     ],
     "outputs": {}
 }
