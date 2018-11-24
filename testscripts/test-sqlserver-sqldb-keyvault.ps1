@@ -2,15 +2,14 @@
 $ScriptStart = (Get-Date)
 
 # Define common variables
-$rgName = "sqlserverwithdbtest"
+$templateStorageAccount = 
+$rgName = "test-sqlserver-sqldb-keyvault"
 $location = "westeurope"
 $deploymentName = "deploymentTest" + '-' + ((Get-Date).ToUniversalTime()).ToString('MMdd-HHmm')
-
 $workFolder = $PSScriptRoot
 $parentFolder = Split-Path -Path $PSScriptRoot -Parent
-
-$deploymentTemplateFile = $workFolder + "\test-sqlserverwithdb.json"
-$deploymentParametersFile = $workFolder + "\test-sqlserverwithdb.parameters.json"
+$deploymentTemplateFile = $workFolder + "\test-sqlserver-sqldb-keyvault.jsonc"
+$deploymentParametersFile = $workFolder + "\test-sqlserver-sqldb-keyvault.parameters.jsonc"
 
 # Create resource group
 New-AzureRmResourceGroup -Name $rgName -Location $location -Force
