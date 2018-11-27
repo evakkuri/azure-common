@@ -164,7 +164,7 @@
                     "output": {
                         //Return name with component name part and padding of unique string to fill remaining space
                         "type": "string",
-                        "value": "[concat(toLower(parameters('componentName')), substring(uniqueString(subscription().id, resourceGroup().id), 0, sub(parameters('maxLength'), length(parameters('componentName')))))]"
+                        "value": "[concat(toLower(parameters('componentName')), take(uniqueString(subscription().id, resourceGroup().id), sub(parameters('maxLength'), length(uniqueString(subscription().id, resourceGroup().id)))))]"
                     }
                 }
             }
