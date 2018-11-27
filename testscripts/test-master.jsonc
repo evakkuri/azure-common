@@ -141,7 +141,7 @@
             "metadata": {
                 "description": "Mandatory. SAS token for reference template Storage Account"
             }
-        },
+        }
     },
     "functions": [
         {
