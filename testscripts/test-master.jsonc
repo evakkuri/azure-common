@@ -221,7 +221,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('templateStorageUri'), '/', 'common-sql-server.json', parameters('templateStorageToken'))]",
+                    "uri": "[concat(parameters('templateStorageUri'), '/', 'common-keyvault.jsonc', parameters('templateStorageToken'))]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
