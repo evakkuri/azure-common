@@ -2,50 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "templateStorageUri": {
-            "type": "string",
-            "metadata": {
-                "description": "Mandatory. URI for reference template Storage Account"
-            }
-        },
-        "templateStorageToken": {
-            "type": "securestring",
-            "metadata": {
-                "description": "Mandatory. SAS token for reference template Storage Account"
-            }
-        },
-        "storageAccountName": {
-            "type": "string",
-            "metadata": {
-                "description": "Mandatory. Name of Storage Account to provision"
-            }
-        },
-        "containerName": {
-            "type": "string",
-            "defaultValue": "eliastestcontainer",
-            "metadata": {
-                "description": "Mandatory. Name of container to add to Storage Account"
-            }
-        },
-        "containerPublicAccessLevel": {
-            "type": "string",
-            "defaultValue": "None",
-            "metadata": {
-                "description": "Optional. Level of public access to storage container."
-            }
-        },
-        "sqlAdminLogin": {
-            "type": "string",
-            "metadata": {
-                "description": "Mandatory. Admin user name to use for SQL Server to be deployed"
-            }
-        },
-        "sqlAdminPassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "Mandatory. Admin password for SQL Server to be provisioned"
-            }
-        },
         "keyVaultName": {
             "type": "string",
             "minLength": 1,
@@ -141,7 +97,51 @@
             "metadata": {
                 "description": "Optional. Array of full Azure Id's of VNET's to which to attach the Key Vault"
             }
-        }
+        },
+        "sqlAdminLogin": {
+            "type": "string",
+            "metadata": {
+                "description": "Mandatory. Admin user name to use for SQL Server to be deployed"
+            }
+        },
+        "sqlAdminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Mandatory. Admin password for SQL Server to be provisioned"
+            }
+        },
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "Mandatory. Name of Storage Account to provision"
+            }
+        },
+        "storageContainerName": {
+            "type": "string",
+            "defaultValue": "eliastestcontainer",
+            "metadata": {
+                "description": "Mandatory. Name of container to add to Storage Account"
+            }
+        },
+        "storageContainerPublicAccessLevel": {
+            "type": "string",
+            "defaultValue": "None",
+            "metadata": {
+                "description": "Optional. Level of public access to storage container."
+            }
+        },
+        "templateStorageUri": {
+            "type": "string",
+            "metadata": {
+                "description": "Mandatory. URI for reference template Storage Account"
+            }
+        },
+        "templateStorageToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Mandatory. SAS token for reference template Storage Account"
+            }
+        },
     },
     "functions": [
         {
@@ -205,7 +205,7 @@
                 },
                 "parameters": {
                     "resourceName": {
-                        "value": "[parameters('containerName')]"
+                        "value": "[tools.uniqueName('blob', 24)]"
                     },
                     "storageAccountName": {
                         "value": "[reference('StorageAccount').outputs.storageAccountName.value]"
