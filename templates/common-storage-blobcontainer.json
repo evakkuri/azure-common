@@ -5,13 +5,13 @@
         "resourceName": {
             "type": "string",
             "metadata": {
-                "desription": "Name of container to create."
+                "desription": "Mandatory. Name of container to create."
             }
         },
         "storageAccountName": {
             "type": "string",
             "metadata": {
-                "description": "Name of Storage Account to which to deploy the new container"
+                "description": "Mandatory. Name of Storage Account to which to deploy the new container"
             }
         },
         "publicAccessLevel": {
@@ -23,14 +23,14 @@
                 "Container"
             ],
             "metadata": {
-                "description": "Level of public access (without SAS token) to container. None for no access, Blob for file access, Container for container access"
+                "description": "Optional. Level of public access (without SAS token) to container. None for no access, Blob for file access, Container for container access"
             }
         },
         "location": {
             "type": "string",
             "defaultValue": "[resourceGroup().location]",
             "metadata": {
-                "description": "Azure location to which to deploy the container"
+                "description": "Optional. Azure location to which to deploy the container"
             }
         }
     },
