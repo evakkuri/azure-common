@@ -225,7 +225,7 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "resourceName": "[parameters('keyVaultName')]",
+                    "resourceName": "[tools.uniqueName('akv', 24)]",
                     "accessPolicies": "[parameters('keyVaultAccessPolicies')]",
                     "logsRetentionInDays": "[parameters('keyVaultLogsRetentionInDays')]",
                     "enableVaultForDeployment": "[parameters('keyVaultEnableVaultForDeployment')]",
