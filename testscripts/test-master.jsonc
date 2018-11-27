@@ -288,8 +288,10 @@
         }
         // Data Lake Store
         // Data Lake Analytics
-        // Data Factory V1
-        // Data Factory V2 + Linked Services + Dataset + Pipeline
+        // Data Factory V2
+        // Data Factory V2 - Linked Services for all relevant components
+        // Data Factory V2 - Dataset example
+        // Data Factory V2 - Pipeline example
     ],
     "outputs": {}
 }
