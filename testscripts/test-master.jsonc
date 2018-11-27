@@ -225,18 +225,18 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "resourceName": "[tools.uniqueName('akv', 24)]",
-                    "accessPolicies": "[parameters('keyVaultAccessPolicies')]",
-                    "logsRetentionInDays": "[parameters('keyVaultLogsRetentionInDays')]",
-                    "enableVaultForDeployment": "[parameters('keyVaultEnableVaultForDeployment')]",
-                    "enableVaultForTemplateDeployment": "[parameters('keyVaultEnableVaultForTemplateDeployment')]",
-                    "enableVaultForDiskEncryption": "[parameters('keyVaultEnableVaultForDiskEncryption')]",
-                    "vaultSku": "[parameters('keyVaultSku')]",
-                    "resourceLocks": "[parameters('keyVaultResourceLock')]",
-                    "location": "[parameters('keyVaultLocation')]",
-                    "firewallIpRules": "[parameters('keyVaultFirewallIpRules')]",
-                    "firewallVnets": "[parameters('keyVaultFirewallVnets')]",
-                    "diagnosticStorageAccountId": "[reference('StorageAccount').outputs.storageAccountId.value]"
+                    "resourceName": { "value": "[tools.uniqueName('akv', 24)]" },
+                    "accessPolicies": { "value": "[parameters('keyVaultAccessPolicies')]" },
+                    "logsRetentionInDays": { "value": "[parameters('keyVaultLogsRetentionInDays')]" },
+                    "enableVaultForDeployment": { "value": "[parameters('keyVaultEnableVaultForDeployment')]" },
+                    "enableVaultForTemplateDeployment": { "value": "[parameters('keyVaultEnableVaultForTemplateDeployment')]" },
+                    "enableVaultForDiskEncryption": { "value": "[parameters('keyVaultEnableVaultForDiskEncryption')]" },
+                    "vaultSku": { "value": "[parameters('keyVaultSku')]" },
+                    "resourceLocks": { "value": "[parameters('keyVaultResourceLock')]" },
+                    "location": { "value": "[parameters('keyVaultLocation')]" },
+                    "firewallIpRules": { "value": "[parameters('keyVaultFirewallIpRules')]" },
+                    "firewallVnets": { "value": "[parameters('keyVaultFirewallVnets')]" },
+                    "diagnosticStorageAccountId": { "value": "[reference('StorageAccount').outputs.storageAccountId.value]" }
                 }
             }
         },
