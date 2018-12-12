@@ -1,0 +1,148 @@
+resources:
+
+    - repo: self
+
+queue:
+
+    name: Hosted VS2017
+    demands: azureps
+
+#Your build pipeline references a secret variable named ‘sqlServerAdminUser’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+
+#Your build pipeline references a secret variable named ‘sqlServerAdminUser’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+
+#Your build pipeline references a secret variable named ‘sqlServerAdminPassword’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+
+#Your build pipeline references an undefined variable named ‘templateUri’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
+
+#Your build pipeline references an undefined variable named ‘templateToken’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
+
+#Your build pipeline references a secret variable named ‘sqlServerAdminUser’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+
+#Your build pipeline references a secret variable named ‘sqlServerAdminUser’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+
+#Your build pipeline references a secret variable named ‘sqlServerAdminPassword’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+
+#Your build pipeline references an undefined variable named ‘templateUri’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
+
+#Your build pipeline references an undefined variable named ‘templateToken’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
+
+variables:
+
+    templateResourceGroupName: 'build-$(Build.BuildId)-templates'
+    templateStorageAccountName: 'eliasuniqueteststorage'
+
+steps:
+
+-   task: gittools.gitversion.gitversion-task.GitVersion@4
+
+    displayName: 'TEST - GitVersion'
+    
+    inputs:
+        preferBundledVersion: false
+
+-   powershell: |
+        # Write your powershell commands here.
+        Write-Host "Hello World"
+   
+        # Use the environment variables input below to pass secret variables to this scripts
+        Write-Host "Without env: $(Build.BuildId)"
+        Write-Host "With env: $env:Build.BuildId"
+   
+        Write-Host "Without env: $(Build.BuildNumber)"
+        Write-Host "With env: $env:Build.BuildNumber"
+   
+        Write-Host "Try to set an environment variable":
+        $env:storageAccountName = "uniqueteststring"
+        Write-Host "Here is the written environment variable: $env:storageAccountName"
+
+    errorActionPreference: continue
+    displayName: 'DEBUG - Environment variables'
+
+-   task: AzureResourceGroupDeployment@2
+
+    displayName: 'Create Storage Account for template staging'
+
+    inputs:
+
+        azureSubscription: 'TemplateDeployment-TEST'
+        resourceGroupName: '$(templateResourceGroupName)'
+        location: 'West Europe'
+        csmFile: 'templates/common-storage-account.json'
+        overrideParameters: '-resourceName $(templateStorageAccountName) -networkDefaultAction "Allow" '
+        deploymentMode: Complete
+
+-   task: AzureFileCopy@1
+
+    displayName: 'Copy reference templates to staging Storage Account'
+
+    inputs:
+
+        SourcePath: templates
+        azureSubscription: 'TemplateDeployment-TEST'
+        Destination: AzureBlob
+        storage: '$(templateStorageAccountName)'
+        ContainerName: templatecontainer
+        outputStorageUri: templateUri
+        outputStorageContainerSasToken: templateToken
+
+-   task: AzureResourceGroupDeployment@2
+
+    displayName: 'Validate master test template'
+
+    inputs:
+
+        azureSubscription: 'TemplateDeployment-TEST'
+        resourceGroupName: '$(deploymentResourceGroupName)'
+        location: 'West Europe'
+        csmFile: 'testscripts/test-master.jsonc'
+        overrideParameters: '-keyVaultName "testkeyvault" -keyVaultAccessPolicies [] -keyVaultLogsRetentionInDays 30 -keyVaultEnableVaultForDeployment false -keyVaultEnableVaultForTemplateDeployment false -keyVaultEnableVaultForDiskEncryption false -keyVaultSku "Standard" -keyVaultResourceLock "None" -keyVaultLocation "[resourceGroup().location]" -keyVaultFirewallIpRules [] -keyVaultFirewallVnets [] -sqlAdminLogin $(sqlServerAdminUser) -sqlAdminPassword $(sqlServerAdminPassword) -storageAccountName "eliastestdeploy" -storageContainerName "eliastestcontainer" -storageContainerPublicAccessLevel "None" -templateStorageUri $(templateUri) -templateStorageToken $(templateToken)'
+        deploymentMode: Validation
+
+-   task: AzureResourceGroupDeployment@2
+
+    displayName: 'Deploy master test template'
+
+    inputs:
+
+        azureSubscription: 'TemplateDeployment-TEST'
+        resourceGroupName: '$(deploymentResourceGroupName)'
+        location: 'West Europe'
+        csmFile: 'testscripts/test-master.jsonc'
+        overrideParameters: '-keyVaultName testkeyvault -keyVaultAccessPolicies [] -keyVaultLogsRetentionInDays 30 -keyVaultEnableVaultForDeployment false -keyVaultEnableVaultForTemplateDeployment false -keyVaultEnableVaultForDiskEncryption false -keyVaultSku "Standard" -keyVaultResourceLock "None" -keyVaultLocation "[resourceGroup().location]" -keyVaultFirewallIpRules [] -keyVaultFirewallVnets [] -sqlAdminLogin $(sqlServerAdminUser) -sqlAdminPassword $(sqlServerAdminPassword) -storageAccountName "eliastestdeploy" -storageContainerName "eliastestcontainer" -storageContainerPublicAccessLevel "None" -templateStorageUri $(templateUri) -templateStorageToken $(templateToken)'
+        deploymentMode: Complete
+
+-   task: AzureResourceGroupDeployment@2
+
+    displayName: 'Cleanup: Delete templates resource group'
+    continueOnError: true
+    condition: always()
+
+    inputs:
+
+        azureSubscription: 'TemplateDeployment-TEST'
+        action: DeleteRG
+        resourceGroupName: '$(templateResourceGroupName)'
+
+
+
+-   task: AzureResourceGroupDeployment@2
+
+    displayName: 'Cleanup: Delete test deployment resource group'
+    continueOnError: true
+    condition: always()
+    
+    inputs:
+
+        azureSubscription: 'TemplateDeployment-TEST'
+        action: DeleteRG
+        resourceGroupName: '$(deploymentResourceGroupName)'
+
+
+
+  
+
+
+
+
+

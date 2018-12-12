@@ -2,61 +2,11 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "templateStorageUri": {
-            "type": "string",
-            "metadata": {
-                "description": "Mandatory. URI for reference template Storage Account"
-            }
-        },
-        "templateStorageToken": {
-            "type": "securestring",
-            "metadata": {
-                "description": "Mandatory. SAS token for reference template Storage Account"
-            }
-        },
-        "storageAccountName": {
-            "type": "string",
-            "metadata": {
-                "description": "Mandatory. Name of Storage Account to provision"
-            }
-        },
-        "containerName": {
-            "type": "string",
-            "defaultValue": "eliastestcontainer",
-            "metadata": {
-                "description": "Mandatory. Name of container to add to Storage Account"
-            }
-        },
-        "containerPublicAccessLevel": {
-            "type": "string",
-            "defaultValue": "None",
-            "metadata": {
-                "description": "Optional. Level of public access to storage container."
-            }
-        },
-        "sqlAdminLogin": {
-            "type": "string",
-            "metadata": {
-                "description": "Mandatory. Admin user name to use for SQL Server to be deployed"
-            }
-        },
-        "sqlAdminPassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "Mandatory. Admin password for SQL Server to be provisioned"
-            }
-        },
         "keyVaultName": {
             "type": "string",
             "minLength": 1,
             "metadata": {
                 "description": "Mandatory. Key Vault name"
-            }
-        },
-        "diagnosticStorageAccountId": {
-            "type": "string",
-            "metadata": {
-                "description": "Mandatory. Full Azure Id of Storage Account where to send Diagnostic Logs"
             }
         },
         "keyVaultAccessPolicies": {
@@ -147,9 +97,82 @@
             "metadata": {
                 "description": "Optional. Array of full Azure Id's of VNET's to which to attach the Key Vault"
             }
+        },
+        "sqlAdminLogin": {
+            "type": "string",
+            "metadata": {
+                "description": "Mandatory. Admin user name to use for SQL Server to be deployed"
+            }
+        },
+        "sqlAdminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Mandatory. Admin password for SQL Server to be provisioned"
+            }
+        },
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "Mandatory. Name of Storage Account to provision"
+            }
+        },
+        "storageContainerName": {
+            "type": "string",
+            "defaultValue": "eliastestcontainer",
+            "metadata": {
+                "description": "Mandatory. Name of container to add to Storage Account"
+            }
+        },
+        "storageContainerPublicAccessLevel": {
+            "type": "string",
+            "defaultValue": "None",
+            "metadata": {
+                "description": "Optional. Level of public access to storage container."
+            }
+        },
+        "templateStorageUri": {
+            "type": "string",
+            "metadata": {
+                "description": "Mandatory. URI for reference template Storage Account"
+            }
+        },
+        "templateStorageToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Mandatory. SAS token for reference template Storage Account"
+            }
         }
     },
-    "variables": {},
+    "functions": [
+        {
+            "namespace": "tools",
+            "members": {
+                //Naming convention function used for naming deployed components
+                "uniqueName": {
+                    "parameters": [
+                        {
+                            //Name of component to use
+                            "name": "componentName",
+                            "type": "string"                        
+                        },
+                        {
+                            //Maximum length of component name
+                            "name": "maxLength",
+                            "type": "int"
+                        }
+                    ],
+                    "output": {
+                        //Return name with component name part and padding of unique string to fill remaining space
+                        "type": "string",
+                        "value": "[concat(toLower(parameters('componentName')), take(uniqueString(subscription().id, resourceGroup().id), sub(parameters('maxLength'), length(uniqueString(subscription().id, resourceGroup().id)))))]"
+                    }
+                }
+            }
+        }
+    ],
+    "variables": {
+        "uniqueString": "[uniqueString(subscription().id, resourceGroup().id)]"
+    },
     "resources": [
         {
             "comments": "Deploy Storage Account",
@@ -164,7 +187,7 @@
                 },
                 "parameters": {
                     "resourceName": {
-                        "value": "[parameters('storageAccountName')]"
+                        "value": "[tools.uniqueName('asa', 24)]"
                     }
                 }
             }
@@ -182,7 +205,7 @@
                 },
                 "parameters": {
                     "resourceName": {
-                        "value": "[parameters('containerName')]"
+                        "value": "[tools.uniqueName('blob', 24)]"
                     },
                     "storageAccountName": {
                         "value": "[reference('StorageAccount').outputs.storageAccountName.value]"
@@ -198,22 +221,22 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('templateStorageUri'), '/', 'common-sql-server.json', parameters('templateStorageToken'))]",
+                    "uri": "[concat(parameters('templateStorageUri'), '/', 'common-keyvault.jsonc', parameters('templateStorageToken'))]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "resourceName": "[parameters('keyVaultName')]",
-                    "accessPolicies": "[parameters('keyVaultAccessPolicies')]",
-                    "logsRetentionInDays": "[parameters('keyVaultLogsRetentionInDays')]",
-                    "enableVaultForDeployment": "[parameters('keyVaultEnableVaultForDeployment')]",
-                    "enableVaultForTemplateDeployment": "[parameters('keyVaultEnableVaultForTemplateDeployment')]",
-                    "enableVaultForDiskEncryption": "[parameters('keyVaultEnableVaultForDiskEncryption')]",
-                    "vaultSku": "[parameters('keyVaultSku')]",
-                    "resourceLocks": "[parameters('keyVaultResourceLock')]",
-                    "location": "[parameters('keyVaultLocation')]",
-                    "firewallIpRules": "[parameters('keyVaultFirewallIpRules')]",
-                    "firewallVnets": "[parameters('keyVaultFirewallVnets')]",
-                    "diagnosticStorageAccountId": "[reference('StorageAccount').outputs.storageAccountId.value]"
+                    "resourceName": { "value": "[tools.uniqueName('akv', 24)]" },
+                    "accessPolicies": { "value": "[parameters('keyVaultAccessPolicies')]" },
+                    "logsRetentionInDays": { "value": "[parameters('keyVaultLogsRetentionInDays')]" },
+                    "enableVaultForDeployment": { "value": "[parameters('keyVaultEnableVaultForDeployment')]" },
+                    "enableVaultForTemplateDeployment": { "value": "[parameters('keyVaultEnableVaultForTemplateDeployment')]" },
+                    "enableVaultForDiskEncryption": { "value": "[parameters('keyVaultEnableVaultForDiskEncryption')]" },
+                    "vaultSku": { "value": "[parameters('keyVaultSku')]" },
+                    "resourceLocks": { "value": "[parameters('keyVaultResourceLock')]" },
+                    "location": { "value": "[parameters('keyVaultLocation')]" },
+                    "firewallIpRules": { "value": "[parameters('keyVaultFirewallIpRules')]" },
+                    "firewallVnets": { "value": "[parameters('keyVaultFirewallVnets')]" },
+                    "diagnosticStorageAccountId": { "value": "[reference('StorageAccount').outputs.storageAccountId.value]" }
                 }
             }
         },
@@ -265,8 +288,11 @@
         }
         // Data Lake Store
         // Data Lake Analytics
-        // Data Factory V1
-        // Data Factory V2 + Linked Services + Dataset + Pipelin
+        // Data Factory V2
+        // Data Factory V2 - Linked Services for all relevant components
+        // Data Factory V2 - Dataset example
+        // Data Factory V2 - Pipeline example
+        // Data Warehouse
     ],
     "outputs": {}
 }
